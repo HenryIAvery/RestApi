@@ -1,6 +1,33 @@
 @RestApi_HostAddress = http://localhost:5260
 
-GET {{RestApi_HostAddress}}/weatherforecast/
+### 1. Obtener todos los platos (Resultado esperado: 200 OK)
+GET {{RestApi_HostAddress}}/platos
 Accept: application/json
 
-###
+### 2. Buscar un plato que NO existe (Resultado esperado: 404 Not Found)
+GET {{RestApi_HostAddress}}/platos/999
+Accept: application/json
+
+### 3. Buscar un plato que SÍ existe (Resultado esperado: 200 OK)
+GET {{RestApi_HostAddress}}/platos/2
+Accept: application/json
+
+### 4. Error provocado: Actualizar con IDs distintos (Resultado esperado: 400 Bad Request)
+# Enviamos a la ruta /4 pero el JSON dice id: 9
+PUT {{RestApi_HostAddress}}/platos/4
+Content-Type: application/json
+
+{
+  "id": 9, 
+  "nombre": "Prueba de error",
+  "descripcion": "Esto debe fallar",
+  "precio": 5.00,
+  "disponible": true,
+  "categoriaId": 1
+}
+
+### 5. Eliminar un plato exitosamente (Resultado esperado: 204 No Content)
+DELETE {{RestApi_HostAddress}}/platos/6
+
+### 6. Eliminar un plato que no existe (Resultado esperado: 404 Not Found)
+DELETE {{RestApi_HostAddress}}/platos/999

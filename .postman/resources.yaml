@@ -1,0 +1,7 @@
+# Use this workspace to collaborate
+workspace:
+  id: df068bf5-577d-40ac-81ba-4914851d4f69
+
+localResources:
+  specs:
+    - ../RestApi/obj/Debug/net10.0/EndpointInfo/RestApi.json

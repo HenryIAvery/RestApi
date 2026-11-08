@@ -1,37 +1,34 @@
+using RestApi.Datos;
+using RestApi.Entidades;
+using RestApi.Negocio;
+
 var builder = WebApplication.CreateBuilder(args);
 
+// 1. Inyectamos las dependencias desde nuestra nueva clase de extensión
+builder.Services.AgregarServiciosRestaurante();
 
 var app = builder.Build();
 
-app.MapGet("/saludo", () => "hola mundo");
-app.MapGet("/saludos/{nombre}", (string nombre) =>
-    $"Hola, {nombre}. Bienvenido a desarrollo web 2");
+// ENDPOINTS DE PRODUCTOS
 
-app.MapGet("/operaciones", (int a, int b) => new
+app.MapGet("/productos", (ProductoServicio servicio) =>
+    servicio.ListarDisponibles());
+
+app.MapGet("/productos/{id:int}", IResult (int id, ProductoServicio servicio) =>
 {
-    a,
-    b,
-    resultadoSuma = a + b,
-    resultadoResta = a - b,
-    resultadoMultiplicacion = a * b,
-    // Si b es 0 devuelve null (o 0), si no, hace la división con decimales
-    resultadoDivision = b == 0 ? (double?)null : (double)a / b
-});
-
-
-app.MapGet("/edad/{anio}", (int anio) =>
-{
-    var anioActual = DateTime.UtcNow.Year;
-
-    // Controlamos que no pongan un año en el futuro o imposible
-    if (anio > anioActual || anio < 1900)
+    try
     {
-        return Results.BadRequest(new { error = "Año inválido" });
+        var producto = servicio.Buscar(id);
+        if (producto is null)
+            return Results.NotFound("No existe el producto " + id);
+        return Results.Ok(producto);
     }
-
-    var edad = anioActual - anio;
-
-    return Results.Ok(new { anio, edad, mayorEdad = edad >= 18 });
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
 });
 
+// ENDPOINTS DE PLATOS
+app.MapPlatoEndpoints();
 app.Run();
