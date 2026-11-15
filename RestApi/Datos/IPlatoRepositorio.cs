@@ -7,4 +7,5 @@ public interface IPlatoRepositorio
     Task<int> AgregarAsync(Plato p);
     Task<bool> ActualizarAsync(Plato p);
     Task<bool> EliminarAsync(int id);
+    Task<List<Plato>> ObtenerPorCategoriaAsync(int categoriaId);
 }

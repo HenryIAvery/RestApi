@@ -4,13 +4,13 @@ public class PlatoServicio(IPlatoRepositorio repo)
 {
     public async Task<List<Plato>> ObtenerTodosAsync()
     {
-        // Aquí puedes agregar lógica de negocio (logs, filtros, mapeos) en el futuro
+
         return await repo.ObtenerTodosAsync();
     }
 
     public async Task<int> AgregarAsync(Plato p)
     {
-        // Ejemplo de lógica de negocio antes de ir a MySQL
+        // Ejemplo de lógica de negocio antes de MySQL
         if (p.Precio <= 0)
         {
             throw new ArgumentException("El precio del plato debe ser mayor a 0.");
@@ -40,5 +40,9 @@ public class PlatoServicio(IPlatoRepositorio repo)
     public async Task<Plato?> ObtenerPorIdAsync(int id)
     {
         return await repo.ObtenerPorIdAsync(id);
+    }
+    public async Task<List<Plato>> ObtenerPorCategoriaAsync(int categoriaId)
+    {
+        return await repo.ObtenerPorCategoriaAsync(categoriaId);
     }
 }

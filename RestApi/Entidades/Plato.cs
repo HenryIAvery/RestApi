@@ -8,5 +8,6 @@
         public decimal Precio { get; set; }
         public bool Disponible { get; set; } = true;
         public int CategoriaId { get; set; }
+        public string Categoria { get; set; } = "";
     }
 }

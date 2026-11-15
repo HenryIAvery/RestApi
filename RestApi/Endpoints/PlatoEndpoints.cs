@@ -1,5 +1,5 @@
 ﻿using RestApi.Entidades;
-using RestApi.Negocio;
+
 
 public static class PlatoEndpoints
 {

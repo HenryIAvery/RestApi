@@ -1,5 +1,6 @@
 ﻿using RestApi.Datos;
 using RestApi.Negocio;
+using RestApi.Entidades;
 
 public static class ServiciosRestaurante
 {
@@ -12,6 +13,13 @@ public static class ServiciosRestaurante
         // Registramos lo nuevo de Platos usando la Interfaz
         services.AddScoped<IPlatoRepositorio, PlatoRepositorio>();
         services.AddScoped<PlatoServicio>();
+
+        services.AddScoped<ICategoriaRepositorio, CategoriaRepositorio>();
+        services.AddScoped<CategoriaServicio>();
+
+
+        services.AddScoped<IMesaRepositorio, MesaRepositorio>();
+        services.AddScoped<MesaServicio>();
 
         return services;
     }

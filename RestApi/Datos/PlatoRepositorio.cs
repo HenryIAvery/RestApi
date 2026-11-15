@@ -6,7 +6,7 @@ using RestApi.Entidades;
 
 public class PlatoRepositorio(IConfiguration config) : IPlatoRepositorio
 {
-    private readonly string _cn = "Server=localhost;Port=3306;Database=RestauranteITQ;Uid=root;Pwd=0998931186Hk!_P;";
+    private readonly string _cn = Environment.GetEnvironmentVariable("DB_CONNECTION")!;
 
     // PASO 2: LECTURA (Actualizado con 6 campos)
     public async Task<List<Plato>> ObtenerTodosAsync()
@@ -18,7 +18,7 @@ public class PlatoRepositorio(IConfiguration config) : IPlatoRepositorio
         await cn.OpenAsync(); // Si la ejecución pasa esta línea, tu MySQL está perfecto.
 
         var cmd = new MySqlCommand(
-            "SELECT Id, Nombre, Descripcion, Precio, Disponible, CategoriaId FROM Platos ORDER BY Nombre", cn);
+            "SELECT Id, Nombre, Descripcion, Precio, Disponible, CategoriaId FROM Platos WHERE Disponible = 1 ORDER BY Nombre", cn);
 
         await using var dr = await cmd.ExecuteReaderAsync();
 
@@ -94,7 +94,7 @@ public class PlatoRepositorio(IConfiguration config) : IPlatoRepositorio
         await cn.OpenAsync();
 
         var cmd = new MySqlCommand(
-            "SELECT Id, Nombre, Descripcion, Precio, Disponible, CategoriaId FROM Platos WHERE Id = @id", cn);
+            "SELECT Id, Nombre, Descripcion, Precio, Disponible, CategoriaId FROM Platos WHERE Id = @id AND Disponible = 1", cn);
         cmd.Parameters.AddWithValue("@id", id);
 
         await using var dr = await cmd.ExecuteReaderAsync();
@@ -111,5 +111,34 @@ public class PlatoRepositorio(IConfiguration config) : IPlatoRepositorio
             };
         }
         return null; // Si no encontró el plato
+    }
+    public async Task<List<Plato>> ObtenerPorCategoriaAsync(int categoriaId)
+    {
+        var lista = new List<Plato>();
+        await using var cn = new MySqlConnection(_cn);
+        await cn.OpenAsync();
+
+        // Filtramos por CategoriaId y aseguramos que solo traiga los disponibles
+        var cmd = new MySqlCommand(
+            "SELECT Id, Nombre, Descripcion, Precio, Disponible, CategoriaId " +
+            "FROM Platos WHERE CategoriaId = @categoriaId AND Disponible = 1 ORDER BY Nombre", cn);
+
+        cmd.Parameters.AddWithValue("@categoriaId", categoriaId);
+
+        await using var dr = await cmd.ExecuteReaderAsync();
+
+        while (await dr.ReadAsync())
+        {
+            lista.Add(new Plato
+            {
+                Id = dr.GetInt32(0),
+                Nombre = dr.GetString(1),
+                Descripcion = dr.GetString(2),
+                Precio = dr.GetDecimal(3),
+                Disponible = dr.GetBoolean(4),
+                CategoriaId = dr.GetInt32(5)
+            });
+        }
+        return lista;
     }
 }
