@@ -8,7 +8,8 @@ public class RestauranteContext(
 {
     public DbSet<Plato> Platos => Set<Plato>();
     public DbSet<Categoria> Categorias => Set<Categoria>();
-    public DbSet<Mesa> Mesas => Set<Mesa>();   // NUEVO
+    public DbSet<Mesa> Mesas => Set<Mesa>();
+    public DbSet<Usuario> Usuarios => Set<Usuario>();
 
     protected override void OnModelCreating(ModelBuilder mb)
     {
@@ -21,3 +22,4 @@ public class RestauranteContext(
         });
     }
 }
+

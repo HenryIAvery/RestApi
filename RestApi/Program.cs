@@ -1,8 +1,7 @@
-using RestApi.Datos;
-using RestApi.Entidades;
-using RestApi.Negocio;
-using RestApi.Endpoints;
 using Microsoft.EntityFrameworkCore;
+using RestApi.Datos;
+using RestApi.Endpoints;
+using RestApi.Negocio;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +13,9 @@ builder.Services.AgregarServiciosRestaurante();
 
 builder.Services.AddDbContext<RestauranteContext>(
     o => o.UseMySql(cn, ServerVersion.AutoDetect(cn)));
+
+builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
+builder.Services.AddScoped<UsuarioServicio>();
 
 var app = builder.Build();
 
@@ -30,5 +32,9 @@ app.MapCategoriaEndpoints();
 //ENDPOINTS DE MESAS
 
 app.MapMesaEndpoints();
+
+//ENDPOINTS DE USUARIOS
+
+app.MapUsuarioEndpoints();
 
 app.Run();
