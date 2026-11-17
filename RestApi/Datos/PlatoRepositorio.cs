@@ -6,7 +6,7 @@ using RestApi.Entidades;
 
 public class PlatoRepositorio(IConfiguration config) : IPlatoRepositorio
 {
-    private readonly string _cn = Environment.GetEnvironmentVariable("DB_CONNECTION")!;
+    private readonly string _cn = config.GetConnectionString("ConexionRestaurante")!;
 
     // PASO 2: LECTURA (Actualizado con 6 campos)
     public async Task<List<Plato>> ObtenerTodosAsync()

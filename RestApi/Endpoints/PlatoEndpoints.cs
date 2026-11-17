@@ -1,5 +1,5 @@
 ﻿using RestApi.Entidades;
-
+using RestApi.Negocio;
 
 public static class PlatoEndpoints
 {
@@ -7,6 +7,7 @@ public static class PlatoEndpoints
     {
         var grupo = app.MapGroup("/platos");
 
+        // Públicos (cualquier cliente con el QR puede ver los platos)
         grupo.MapGet("/", async (PlatoServicio s) =>
             Results.Ok(await s.ObtenerTodosAsync()));
 
@@ -16,6 +17,7 @@ public static class PlatoEndpoints
             return plato is null ? Results.NotFound(new { error = "Plato no encontrado." }) : Results.Ok(plato);
         });
 
+        // Protegidos (solo Administrador)
         grupo.MapPost("/", async (Plato p, PlatoServicio s) =>
         {
             try
@@ -27,7 +29,7 @@ public static class PlatoEndpoints
             {
                 return Results.BadRequest(new { error = ex.Message });
             }
-        });
+        }).RequireAuthorization("SoloAdmin");
 
         grupo.MapPut("/{id}", async (int id, Plato p, PlatoServicio s) =>
         {
@@ -42,12 +44,12 @@ public static class PlatoEndpoints
             {
                 return Results.BadRequest(new { error = ex.Message });
             }
-        });
+        }).RequireAuthorization("SoloAdmin");
 
         grupo.MapDelete("/{id}", async (int id, PlatoServicio s) =>
         {
             var eliminado = await s.EliminarAsync(id);
             return eliminado ? Results.NoContent() : Results.NotFound(new { error = "Plato no encontrado." });
-        });
+        }).RequireAuthorization("SoloAdmin");
     }
-}
+}   

@@ -7,7 +7,8 @@ public static class UsuarioEndpoints
     public static void MapUsuarioEndpoints(
         this IEndpointRouteBuilder app)
     {
-        var g = app.MapGroup("/usuarios");
+        var g = app.MapGroup("/usuarios")
+                   .RequireAuthorization("SoloAdmin");
 
         // GET /usuarios → 200 con la lista de UsuarioDto
         g.MapGet("", async (UsuarioServicio s) =>
@@ -20,5 +21,11 @@ public static class UsuarioEndpoints
                 var u = await s.RegistrarAsync(r);
                 return Results.Created($"/usuarios/{u.Id}", u);
             }));
+
+        // GET /usuarios → 200 · sin token 401 · otro rol 403
+        g.MapGet("", async (UsuarioServicio s) =>
+            Results.Ok(await s.ListarAsync()));
     }
+
+
 }
