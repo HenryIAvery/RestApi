@@ -21,5 +21,9 @@ public static class Respuestas
         {
             return Results.Conflict(new { error = ex.Message });            // 409
         }
+        catch (UnauthorizedAccessException)   // no tiene permiso para esa acción
+        {
+            return Results.Forbid();                                        // 403
+        }
     }
 }

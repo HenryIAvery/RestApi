@@ -1,144 +1,54 @@
-﻿using Microsoft.Extensions.Configuration;
-using MySql.Data.MySqlClient;
+﻿using Microsoft.EntityFrameworkCore;
+using RestApi.Datos;
 using RestApi.Entidades;
 
-
-
-public class PlatoRepositorio(IConfiguration config) : IPlatoRepositorio
+public class PlatoRepositorio(RestauranteContext db) : IPlatoRepositorio
 {
-    private readonly string _cn = config.GetConnectionString("ConexionRestaurante")!;
+    public Task<List<Plato>> ObtenerTodosAsync() =>
+        db.Platos.AsNoTracking()
+          .OrderBy(p => p.Nombre)
+          .ToListAsync();
 
-    // PASO 2: LECTURA (Actualizado con 6 campos)
-    public async Task<List<Plato>> ObtenerTodosAsync()
-    {
+    public Task<Plato?> ObtenerPorIdAsync(int id) =>
+        db.Platos.FirstOrDefaultAsync(p => p.Id == id);
 
-        var lista = new List<Plato>();
-        // Usamos la cadena literal en lugar de la variable global _cn
-        await using var cn = new MySqlConnection(_cn);
-        await cn.OpenAsync(); // Si la ejecución pasa esta línea, tu MySQL está perfecto.
+    public Task<List<Plato>> ObtenerPorCategoriaAsync(int categoriaId) =>
+        db.Platos.AsNoTracking()
+          .Where(p => p.CategoriaId == categoriaId)
+          .OrderBy(p => p.Nombre)
+          .ToListAsync();
 
-        var cmd = new MySqlCommand(
-            "SELECT Id, Nombre, Descripcion, Precio, Disponible, CategoriaId FROM Platos WHERE Disponible = 1 ORDER BY Nombre", cn);
-
-        await using var dr = await cmd.ExecuteReaderAsync();
-
-        while (await dr.ReadAsync())
-        {
-            lista.Add(new Plato
-            {
-                Id = dr.GetInt32(0),
-                Nombre = dr.GetString(1),
-                Descripcion = dr.IsDBNull(2) ? null : dr.GetString(2),
-                Precio = dr.GetDecimal(3),
-                Disponible = dr.GetBoolean(4),
-                CategoriaId = dr.GetInt32(5)
-            });
-        }
-        return lista;
-    }
-
-    // PASO 3: ESCRITURA - INSERT (Actualizado con 6 campos)
     public async Task<int> AgregarAsync(Plato p)
     {
-        await using var cn = new MySqlConnection(_cn);
-        await cn.OpenAsync();
-
-        var cmd = new MySqlCommand(
-            "INSERT INTO Platos (Nombre, Descripcion, Precio, Disponible, CategoriaId) VALUES (@nombre, @desc, @precio, @disponible, @cat); SELECT LAST_INSERT_ID();", cn);
-
-        cmd.Parameters.AddWithValue("@nombre", p.Nombre);
-        cmd.Parameters.AddWithValue("@desc", p.Descripcion ?? (object)DBNull.Value);
-        cmd.Parameters.AddWithValue("@precio", p.Precio);
-        cmd.Parameters.AddWithValue("@disponible", p.Disponible);
-        cmd.Parameters.AddWithValue("@cat", p.CategoriaId);
-
-        return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+        p.Id = 0;
+        db.Platos.Add(p);
+        await db.SaveChangesAsync();
+        return p.Id;
     }
 
-    // PASO 3: ESCRITURA - UPDATE (Actualizado con 6 campos)
     public async Task<bool> ActualizarAsync(Plato p)
     {
-        await using var cn = new MySqlConnection(_cn);
-        await cn.OpenAsync();
+        var actual = await db.Platos.FirstOrDefaultAsync(x => x.Id == p.Id);
+        if (actual is null) return false;
 
-        var cmd = new MySqlCommand(
-            "UPDATE Platos SET Nombre = @nombre, Descripcion = @desc, Precio = @precio, Disponible = @disponible, CategoriaId = @cat WHERE Id = @id", cn);
+        actual.Nombre = p.Nombre;
+        actual.Descripcion = p.Descripcion;
+        actual.Precio = p.Precio;
+        actual.Disponible = p.Disponible;
+        actual.CategoriaId = p.CategoriaId;
 
-        cmd.Parameters.AddWithValue("@id", p.Id);
-        cmd.Parameters.AddWithValue("@nombre", p.Nombre);
-        cmd.Parameters.AddWithValue("@desc", p.Descripcion ?? (object)DBNull.Value);
-        cmd.Parameters.AddWithValue("@precio", p.Precio);
-        cmd.Parameters.AddWithValue("@disponible", p.Disponible);
-        cmd.Parameters.AddWithValue("@cat", p.CategoriaId);
-
-        var filasAfectadas = await cmd.ExecuteNonQueryAsync();
-        return filasAfectadas > 0;
+        await db.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> EliminarAsync(int id)
     {
-        await using var cn = new MySqlConnection(_cn);
-        await cn.OpenAsync();
+        var actual = await db.Platos.FirstOrDefaultAsync(x => x.Id == id);
+        if (actual is null) return false;
 
-        // Cambiamos el comando DELETE por un UPDATE
-        var cmd = new MySqlCommand("UPDATE Platos SET Disponible = 0 WHERE Id = @id", cn);
-        cmd.Parameters.AddWithValue("@id", id);
-
-        var filasAfectadas = await cmd.ExecuteNonQueryAsync();
-        return filasAfectadas > 0;
-    }
-
-    public async Task<Plato?> ObtenerPorIdAsync(int id)
-    {
-        await using var cn = new MySqlConnection(_cn);
-        await cn.OpenAsync();
-
-        var cmd = new MySqlCommand(
-            "SELECT Id, Nombre, Descripcion, Precio, Disponible, CategoriaId FROM Platos WHERE Id = @id AND Disponible = 1", cn);
-        cmd.Parameters.AddWithValue("@id", id);
-
-        await using var dr = await cmd.ExecuteReaderAsync();
-        if (await dr.ReadAsync())
-        {
-            return new Plato
-            {
-                Id = dr.GetInt32(0),
-                Nombre = dr.GetString(1),
-                Descripcion = dr.IsDBNull(2) ? null : dr.GetString(2),
-                Precio = dr.GetDecimal(3),
-                Disponible = dr.GetBoolean(4),
-                CategoriaId = dr.GetInt32(5)
-            };
-        }
-        return null; // Si no encontró el plato
-    }
-    public async Task<List<Plato>> ObtenerPorCategoriaAsync(int categoriaId)
-    {
-        var lista = new List<Plato>();
-        await using var cn = new MySqlConnection(_cn);
-        await cn.OpenAsync();
-
-        // Filtramos por CategoriaId y aseguramos que solo traiga los disponibles
-        var cmd = new MySqlCommand(
-            "SELECT Id, Nombre, Descripcion, Precio, Disponible, CategoriaId " +
-            "FROM Platos WHERE CategoriaId = @categoriaId AND Disponible = 1 ORDER BY Nombre", cn);
-
-        cmd.Parameters.AddWithValue("@categoriaId", categoriaId);
-
-        await using var dr = await cmd.ExecuteReaderAsync();
-
-        while (await dr.ReadAsync())
-        {
-            lista.Add(new Plato
-            {
-                Id = dr.GetInt32(0),
-                Nombre = dr.GetString(1),
-                Descripcion = dr.GetString(2),
-                Precio = dr.GetDecimal(3),
-                Disponible = dr.GetBoolean(4),
-                CategoriaId = dr.GetInt32(5)
-            });
-        }
-        return lista;
+        // Borrado lógico: Disponible = false
+        actual.Disponible = false;
+        await db.SaveChangesAsync();
+        return true;
     }
 }

@@ -29,7 +29,14 @@ builder.Services.AddScoped<AuthServicio>();
 // Políticas de autorización
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("SoloAdmin",
-        p => p.RequireRole(Roles.Administrador));
+        p => p.RequireRole(Roles.Administrador))
+    .AddPolicy("Personal",
+        p => p.RequireRole(Roles.Administrador,
+                           Roles.Mesero, Roles.Cocina))
+    .AddPolicy("Mesero",
+        p => p.RequireRole(Roles.Mesero))
+    .AddPolicy("Cocina",
+        p => p.RequireRole(Roles.Cocina));
 
 // Configuración de JWT
 var jwt = builder.Configuration.GetSection("Jwt");
@@ -80,5 +87,8 @@ app.MapMesaEndpoints();
 
 // ENDPOINTS DE USUARIOS
 app.MapUsuarioEndpoints();
+
+// ENDPOINTS DE PEDIDOS
+app.MapPedidoEndpoints();
 
 app.Run();

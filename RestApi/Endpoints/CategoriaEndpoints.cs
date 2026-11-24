@@ -24,7 +24,7 @@ public static class CategoriaEndpoints
     {
                 c.Id = await s.AgregarAsync(c);
         return Results.Created($"/categorias/{c.Id}", c);
-     }));   
+     })).RequireAuthorization("SoloAdmin");   
 
         grupo.MapPut("/{id:int}", (int id, Categoria c, CategoriaServicio s) =>
             Respuestas.Manejar(async () =>
@@ -32,13 +32,13 @@ public static class CategoriaEndpoints
                 c.Id = id;
                 await s.ActualizarAsync(c);
                 return Results.Ok(c);
-            }));
+            })).RequireAuthorization("SoloAdmin");
 
         grupo.MapDelete("/{id:int}", (int id, CategoriaServicio s) =>
             Respuestas.Manejar(async () =>
             {
                 await s.EliminarAsync(id);
                 return Results.NoContent();
-            }));
+            })).RequireAuthorization("SoloAdmin");
     }
 }

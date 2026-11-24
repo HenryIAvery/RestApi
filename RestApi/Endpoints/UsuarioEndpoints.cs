@@ -21,10 +21,6 @@ public static class UsuarioEndpoints
                 var u = await s.RegistrarAsync(r);
                 return Results.Created($"/usuarios/{u.Id}", u);
             }));
-
-        // GET /usuarios → 200 · sin token 401 · otro rol 403
-        g.MapGet("", async (UsuarioServicio s) =>
-            Results.Ok(await s.ListarAsync()));
     }
 
 

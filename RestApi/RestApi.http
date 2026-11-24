@@ -1,24 +1,124 @@
-@RestApi_HostAddress = http://localhost:5260
+  @RestApi_HostAddress = http://localhost:5260
 
-### 1. Obtener todos los platos (Resultado esperado: 200 OK)
-GET {{RestApi_HostAddress}}/platos
-Accept: application/json
+# Reemplaza estos tokens con los que te devuelva POST /auth/login para cada rol
+@tokenAdmin  = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJSZXN0YXVyYW50ZUFwcCIsImlzcyI6IlJlc3RhdXJhbnRlQXBpIiwiZXhwIjoxNzk1NTIxOTEyLCJzdWIiOiIxIiwibmFtZSI6IkFkbWluIElUUSIsImVtYWlsIjoiYWRtaW5AaXRxLmVjIiwicm9sZSI6IkFkbWluaXN0cmFkb3IiLCJpYXQiOjE3OTU0OTMxMTIsIm5iZiI6MTc5NTQ5MzExMn0.jBtGVVj6AmjvejVg-3b623JbSl2tZGC3JITiMOlbbNg
+@tokenCocina = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJSZXN0YXVyYW50ZUFwcCIsImlzcyI6IlJlc3RhdXJhbnRlQXBpIiwiZXhwIjoxNzk1NTI1NTE1LCJzdWIiOiIzIiwibmFtZSI6IkNhcmxvcyBDb2NpbmEiLCJlbWFpbCI6ImNvY2luYUBpdHEuZWMiLCJyb2xlIjoiQ29jaW5hIiwiaWF0IjoxNzk1NDk2NzE1LCJuYmYiOjE3OTU0OTY3MTV9.VwRXJ0-YutVRyqed0qlOCEUJVaD6bKoBOfbF2stgCBw
+@tokenMesero = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJSZXN0YXVyYW50ZUFwcCIsImlzcyI6IlJlc3RhdXJhbnRlQXBpIiwiZXhwIjoxNzk1NTI1NTk4LCJzdWIiOiIyIiwibmFtZSI6IkFuYSBNZXNlcmEiLCJlbWFpbCI6ImFuYUBpdHEuZWMiLCJyb2xlIjoiTWVzZXJvIiwiaWF0IjoxNzk1NDk2Nzk4LCJuYmYiOjE3OTU0OTY3OTh9.G5_KlEarJUAR0VgmSuYRIA2u6QLzAwfHBhOcwccRqbQ
 
-### 2. Buscar un plato que NO existe (Resultado esperado: 404 Not Found)
-GET {{RestApi_HostAddress}}/platos/999
-Accept: application/json
+# ============================================================================
+# 1. AUTENTICACIÓN Y USUARIOS (200, 201, 400, 401, 403, 409)
+# ============================================================================
 
-### 3. Buscar un plato que SÍ existe (Resultado esperado: 200 OK)
-GET {{RestApi_HostAddress}}/platos/2
-Accept: application/json
-
-### 4. Error provocado: Actualizar con IDs distintos (Resultado esperado: 400 Bad Request)
-# Enviamos a la ruta /4 pero el JSON dice id: 9
-PUT {{RestApi_HostAddress}}/platos/4
+### 1.1 Login exitoso como Administrador → 200 OK
+POST {{RestApi_HostAddress}}/auth/login
 Content-Type: application/json
 
 {
-  "id": 9, 
+  "correo": "admin@itq.ec",
+  "password": "Admin12345"
+}
+
+### 1.2 Login con credenciales incorrectas → 401 Unauthorized
+POST {{RestApi_HostAddress}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "admin@itq.ec",
+  "password": "clave-incorrecta"
+}
+
+### 1.3 Consultar perfil propio con token válido → 200 OK
+GET {{RestApi_HostAddress}}/auth/yo
+Authorization: Bearer {{tokenAdmin}}
+
+### 1.4 Consultar usuarios SIN token → 401 Unauthorized
+GET {{RestApi_HostAddress}}/usuarios
+
+### 1.5 Consultar usuarios con rol Mesero (no es Admin) → 403 Forbidden
+GET {{RestApi_HostAddress}}/usuarios
+Authorization: Bearer {{tokenMesero}}
+
+### 1.6 Registrar usuario Cocina (como Admin) → 201 Created
+POST {{RestApi_HostAddress}}/usuarios
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "nombre": "Carlos Cocina",
+  "correo": "cocina@itq.ec",
+  "password": "Cocina12345",
+  "rol": "Cocina"
+}
+
+### 1.7 Registrar usuario Mesero (como Admin) → 201 Created
+POST {{RestApi_HostAddress}}/usuarios
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "nombre": "María Mesera",
+  "correo": "mesero@itq.ec",
+  "password": "Mesero12345",
+  "rol": "Mesero"
+}
+
+### 1.8 Registrar usuario con correo repetido → 409 Conflict
+POST {{RestApi_HostAddress}}/usuarios
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "nombre": "Otro Mesero",
+  "correo": "mesero@itq.ec",
+  "password": "Mesero12345",
+  "rol": "Mesero"
+}
+
+### 1.9 Registrar usuario con contraseña corta (< 8 chars) → 400 Bad Request
+POST {{RestApi_HostAddress}}/usuarios
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "nombre": "Usuario Invalido",
+  "correo": "invalido@itq.ec",
+  "password": "123",
+  "rol": "Mesero"
+}
+
+
+# ============================================================================
+# 2. PLATOS Y CATEGORÍAS (200, 201, 204, 400, 401, 403, 404, 409)
+# ============================================================================
+
+### 2.1 Obtener todos los platos (Público) → 200 OK
+GET {{RestApi_HostAddress}}/platos
+Accept: application/json
+
+### 2.2 Buscar un plato que NO existe → 404 Not Found
+GET {{RestApi_HostAddress}}/platos/999
+Accept: application/json
+
+### 2.3 Crear plato con precio inválido (<= 0) → 400 Bad Request
+POST {{RestApi_HostAddress}}/platos
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "nombre": "Plato Gratis",
+  "descripcion": "Precio inválido",
+  "precio": 0,
+  "disponible": true,
+  "categoriaId": 1
+}
+
+### 2.4 Actualizar plato con IDs distintos → 400 Bad Request
+PUT {{RestApi_HostAddress}}/platos/4
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "id": 9,
   "nombre": "Prueba de error",
   "descripcion": "Esto debe fallar",
   "precio": 5.00,
@@ -26,8 +126,118 @@ Content-Type: application/json
   "categoriaId": 1
 }
 
-### 5. Eliminar un plato exitosamente (Resultado esperado: 204 No Content)
+### 2.5 Eliminar un plato exitosamente (borrado lógico) → 204 No Content
 DELETE {{RestApi_HostAddress}}/platos/6
+Authorization: Bearer {{tokenAdmin}}
 
-### 6. Eliminar un plato que no existe (Resultado esperado: 404 Not Found)
-DELETE {{RestApi_HostAddress}}/platos/999
+### 2.6 Eliminar categoría que tiene platos asociados → 409 Conflict
+DELETE {{RestApi_HostAddress}}/categorias/1
+Authorization: Bearer {{tokenAdmin}}
+
+
+# ============================================================================
+# 3. MESAS Y CÓDIGO QR (200, 201, 204, 400, 404, 409)
+# ============================================================================
+
+### 3.1 Listar mesas (SoloAdmin) → 200 OK
+GET {{RestApi_HostAddress}}/mesas
+Authorization: Bearer {{tokenAdmin}}
+
+### 3.2 Crear mesa nueva → 201 Created
+POST {{RestApi_HostAddress}}/mesas
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "numero": 10,
+  "capacidad": 4
+}
+
+### 3.3 Crear mesa con número repetido → 409 Conflict
+POST {{RestApi_HostAddress}}/mesas
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "numero": 10,
+  "capacidad": 4
+}
+
+### 3.4 Crear mesa con capacidad inválida (> 20) → 400 Bad Request
+POST {{RestApi_HostAddress}}/mesas
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "numero": 11,
+  "capacidad": 50
+}
+
+### 3.5 Descargar código QR PNG de la mesa 1 → 200 OK (image/png)
+GET {{RestApi_HostAddress}}/mesas/1/qr
+Authorization: Bearer {{tokenAdmin}}
+
+
+# ============================================================================
+# 4. RECORRIDO COMPLETO DE UN PEDIDO (201 → Pendiente → EnPreparacion → Listo → Entregado)
+# ============================================================================
+
+### 4.1 Crear pedido (toma el precio desde la BD) → 201 Created (Estado: Pendiente)
+POST {{RestApi_HostAddress}}/pedidos
+Content-Type: application/json
+
+{
+  "mesaId": 1,
+  "items": [
+    { "platoId": 1, "cantidad": 2 },
+    { "platoId": 2, "cantidad": 1 }
+  ]
+}
+
+### 4.2 Crear pedido vacío (sin items) → 400 Bad Request
+POST {{RestApi_HostAddress}}/pedidos
+Content-Type: application/json
+
+{
+  "mesaId": 1,
+  "items": []
+}
+
+### 4.3 Crear pedido con plato inexistente → 404 Not Found
+POST {{RestApi_HostAddress}}/pedidos
+Content-Type: application/json
+
+{
+  "mesaId": 1,
+  "items": [
+    { "platoId": 999, "cantidad": 1 }
+  ]
+}
+
+### 4.4 Intentar avanzar de Pendiente a EnPreparacion con rol Mesero → 403 Forbidden (Solo Cocina puede)
+PATCH {{RestApi_HostAddress}}/pedidos/1/avanzar
+Authorization: Bearer {{tokenMesero}}
+
+### 4.5 Paso 1 del recorrido: Cocina avanza de Pendiente → EnPreparacion → 200 OK
+PATCH {{RestApi_HostAddress}}/pedidos/1/avanzar
+Authorization: Bearer {{tokenCocina}}
+
+### 4.6 Paso 2 del recorrido: Cocina avanza de EnPreparacion → Listo → 200 OK
+PATCH {{RestApi_HostAddress}}/pedidos/1/avanzar
+Authorization: Bearer {{tokenCocina}}
+
+### 4.7 Intentar avanzar de Listo a Entregado con rol Cocina → 403 Forbidden (Solo Mesero puede)
+PATCH {{RestApi_HostAddress}}/pedidos/1/avanzar
+Authorization: Bearer {{tokenCocina}}
+
+### 4.8 Paso 3 del recorrido: Mesero avanza de Listo → Entregado → 200 OK
+PATCH {{RestApi_HostAddress}}/pedidos/1/avanzar
+Authorization: Bearer {{tokenMesero}}
+
+### 4.9 Intentar avanzar un pedido que ya está Entregado → 409 Conflict
+PATCH {{RestApi_HostAddress}}/pedidos/1/avanzar
+Authorization: Bearer {{tokenMesero}}
+
+### 4.10 Consultar el pedido finalizado → 200 OK
+GET {{RestApi_HostAddress}}/pedidos/1
+Authorization: Bearer {{tokenMesero}}
