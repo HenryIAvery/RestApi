@@ -16,7 +16,8 @@ var cn = builder.Configuration
 builder.Services.AgregarServiciosRestaurante();
 
 builder.Services.AddDbContext<RestauranteContext>(
-    o => o.UseMySql(cn, ServerVersion.AutoDetect(cn)));
+    o => o.UseMySql(cn, ServerVersion.AutoDetect(cn))
+          .LogTo(Console.WriteLine, LogLevel.Information));
 
 // NUEVO: servicios de usuarios
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
@@ -64,7 +65,20 @@ builder.Services
         };
     });
 
+builder.Services.AddCors(o =>
+
+      o.AddPolicy("Angular", p => p
+
+        .WithOrigins("http://localhost:4200")
+
+        .AllowAnyHeader()
+
+        .AllowAnyMethod()));
+
 var app = builder.Build();
+
+//ANGULAR
+app.UseCors("Angular");
 
 // SEGURIDAD (siempre antes de los endpoints)
 app.UseAuthentication();   // ¿quién eres?   → 401
@@ -90,5 +104,8 @@ app.MapUsuarioEndpoints();
 
 // ENDPOINTS DE PEDIDOS
 app.MapPedidoEndpoints();
+
+// ENDPOINTS DE REPORTES
+app.MapReporteEndpoints();
 
 app.Run();

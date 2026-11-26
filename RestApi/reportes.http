@@ -1,0 +1,97 @@
+@RestApi_HostAddress = http://localhost:5260
+
+# Reemplaza estos tokens con los que te devuelva POST /auth/login para cada rol
+@tokenAdmin  = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJSZXN0YXVyYW50ZUFwcCIsImlzcyI6IlJlc3RhdXJhbnRlQXBpIiwiZXhwIjoxNzk1NzI5ODYyLCJzdWIiOiIxIiwibmFtZSI6IkFkbWluIElUUSIsImVtYWlsIjoiYWRtaW5AaXRxLmVjIiwicm9sZSI6IkFkbWluaXN0cmFkb3IiLCJpYXQiOjE3OTU3MDEwNjIsIm5iZiI6MTc5NTcwMTA2Mn0.GOZJI7YmnTkM0MrErJuO2ZUATZs7ZckTfHjF7RGYfM8
+@tokenCocina = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJSZXN0YXVyYW50ZUFwcCIsImlzcyI6IlJlc3RhdXJhbnRlQXBpIiwiZXhwIjoxNzk1NzI5ODYyLCJzdWIiOiIzIiwibmFtZSI6IkNhcmxvcyBDb2NpbmEiLCJlbWFpbCI6ImNvY2luYUBpdHEuZWMiLCJyb2xlIjoiQ29jaW5hIiwiaWF0IjoxNzk1NzAxMDYyLCJuYmYiOjE3OTU3MDEwNjJ9.kd2XZTlVGZbwZ_GjVsUzuKEHsveHR3j4CD64nFbY3do
+@tokenMesero = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJSZXN0YXVyYW50ZUFwcCIsImlzcyI6IlJlc3RhdXJhbnRlQXBpIiwiZXhwIjoxNzk1NzI5ODYyLCJzdWIiOiIyIiwibmFtZSI6IkFuYSBNZXNlcmEiLCJlbWFpbCI6ImFuYUBpdHEuZWMiLCJyb2xlIjoiTWVzZXJvIiwiaWF0IjoxNzk1NzAxMDYyLCJuYmYiOjE3OTU3MDEwNjJ9.wBgwEK0ZInA9KEmkDrbiihsTOX30u5q62IoiOKeKwbI
+
+# ============================================================================
+# PRUEBAS DEL REPORTE DEL DÍA (GET /reportes/dia)
+# ============================================================================
+
+### 1. Administrador con token (día de hoy, sin enviar parámetro fecha) → 200 OK con datos
+GET {{RestApi_HostAddress}}/reportes/dia
+Authorization: Bearer {{tokenAdmin}}
+Accept: application/json
+
+### 2. Administrador con token y fecha explícita → 200 OK con datos
+GET {{RestApi_HostAddress}}/reportes/dia?fecha=2026-11-26
+Authorization: Bearer {{tokenAdmin}}
+Accept: application/json
+
+### 3. Mesero intenta consultar el reporte → 403 Forbidden
+GET {{RestApi_HostAddress}}/reportes/dia
+Authorization: Bearer {{tokenMesero}}
+Accept: application/json
+
+### 4. Cocina intenta consultar el reporte → 403 Forbidden
+GET {{RestApi_HostAddress}}/reportes/dia
+Authorization: Bearer {{tokenCocina}}
+Accept: application/json
+
+### 5. Consulta sin token → 401 Unauthorized
+GET {{RestApi_HostAddress}}/reportes/dia
+Accept: application/json
+
+### 6. Fecha sin pedidos → 200 OK con valores en cero y listas vacías
+GET {{RestApi_HostAddress}}/reportes/dia?fecha=2020-01-01
+Authorization: Bearer {{tokenAdmin}}
+Accept: application/json
+
+### 7. Fecha con formato incorrecto → 400 Bad Request
+GET {{RestApi_HostAddress}}/reportes/dia?fecha=26-11-2026
+Authorization: Bearer {{tokenAdmin}}
+Accept: application/json
+
+
+# ============================================================================
+# PASO 7: CREAR PEDIDOS DE PRUEBA EN DISTINTOS ESTADOS PARA EL REPORTE
+# ============================================================================
+
+### 8.1 Crear Pedido A (se quedará en estado Pendiente)
+POST {{RestApi_HostAddress}}/pedidos
+Content-Type: application/json
+
+{
+  "mesaId": 1,
+  "items": [
+    { "platoId": 1, "cantidad": 1 }
+  ]
+}
+
+### 8.2 Crear Pedido B (lo pasaremos a EnPreparacion)
+POST {{RestApi_HostAddress}}/pedidos
+Content-Type: application/json
+
+{
+  "mesaId": 1,
+  "items": [
+    { "platoId": 2, "cantidad": 2 }
+  ]
+}
+
+### 8.3 Crear Pedido C (lo pasaremos hasta Entregado para que sume a TotalVendido y TopPlatos)
+POST {{RestApi_HostAddress}}/pedidos
+Content-Type: application/json
+
+{
+  "mesaId": 1,
+  "items": [
+    { "platoId": 1, "cantidad": 3 },
+    { "platoId": 2, "cantidad": 2 }
+  ]
+}
+
+### 8.4 Pasar el Pedido 4 (8.2) a "EnPreparacion" → Dale a Send Request 1 SOLA VEZ
+PATCH {{RestApi_HostAddress}}/pedidos/4/avanzar
+Authorization: Bearer {{tokenAdmin}}
+
+### 8.5 Pasar el Pedido 5 (8.3) hasta "Entregado" → Dale a Send Request 3 VECES SEGUIDAS (1: EnPreparacion → 2: Listo → 3: Entregado)
+PATCH {{RestApi_HostAddress}}/pedidos/5/avanzar
+Authorization: Bearer {{tokenAdmin}}
+
+### 8.6 Volver a consultar el reporte del día para ver los nuevos totales y estados → 200 OK
+GET {{RestApi_HostAddress}}/reportes/dia
+Authorization: Bearer {{tokenAdmin}}
+Accept: application/json
+

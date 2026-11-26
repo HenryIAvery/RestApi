@@ -24,6 +24,9 @@ public static class ServiciosRestaurante
         services.AddScoped<IPedidoRepositorio, PedidoRepositorio>();
         services.AddScoped<PedidoServicio>();
 
+        services.AddScoped<IReporteRepositorio, ReporteRepositorio>();
+        services.AddScoped<ReporteServicio>();
+
         return services;
     }
 }

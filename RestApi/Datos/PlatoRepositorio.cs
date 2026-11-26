@@ -5,18 +5,50 @@ using RestApi.Entidades;
 public class PlatoRepositorio(RestauranteContext db) : IPlatoRepositorio
 {
     public Task<List<Plato>> ObtenerTodosAsync() =>
-        db.Platos.AsNoTracking()
-          .OrderBy(p => p.Nombre)
-          .ToListAsync();
+        (from p in db.Platos.AsNoTracking()
+         join c in db.Categorias.AsNoTracking() on p.CategoriaId equals c.Id
+         orderby p.Nombre
+         select new Plato
+         {
+             Id = p.Id,
+             Nombre = p.Nombre,
+             Descripcion = p.Descripcion,
+             Precio = p.Precio,
+             Disponible = p.Disponible,
+             CategoriaId = p.CategoriaId,
+             Categoria = c.Nombre
+         }).ToListAsync();
 
     public Task<Plato?> ObtenerPorIdAsync(int id) =>
-        db.Platos.FirstOrDefaultAsync(p => p.Id == id);
+        (from p in db.Platos
+         join c in db.Categorias on p.CategoriaId equals c.Id
+         where p.Id == id
+         select new Plato
+         {
+             Id = p.Id,
+             Nombre = p.Nombre,
+             Descripcion = p.Descripcion,
+             Precio = p.Precio,
+             Disponible = p.Disponible,
+             CategoriaId = p.CategoriaId,
+             Categoria = c.Nombre
+         }).FirstOrDefaultAsync();
 
     public Task<List<Plato>> ObtenerPorCategoriaAsync(int categoriaId) =>
-        db.Platos.AsNoTracking()
-          .Where(p => p.CategoriaId == categoriaId)
-          .OrderBy(p => p.Nombre)
-          .ToListAsync();
+        (from p in db.Platos.AsNoTracking()
+         join c in db.Categorias.AsNoTracking() on p.CategoriaId equals c.Id
+         where p.CategoriaId == categoriaId
+         orderby p.Nombre
+         select new Plato
+         {
+             Id = p.Id,
+             Nombre = p.Nombre,
+             Descripcion = p.Descripcion,
+             Precio = p.Precio,
+             Disponible = p.Disponible,
+             CategoriaId = p.CategoriaId,
+             Categoria = c.Nombre
+         }).ToListAsync();
 
     public async Task<int> AgregarAsync(Plato p)
     {
