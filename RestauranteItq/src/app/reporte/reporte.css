@@ -1,0 +1,287 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+:host {
+  display: block;
+  min-height: 100vh;
+  padding: 45px 6%;
+  box-sizing: border-box;
+  background: #080d16;
+  color: #dce8f2;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.reporte-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  text-align: center;
+  color: #e8f7ff;
+  margin-bottom: 35px;
+  text-shadow: 0 0 12px rgba(0, 225, 255, 0.4);
+}
+
+h1::after {
+  content: "";
+  display: block;
+  width: 90px;
+  height: 3px;
+  margin: 14px auto 0;
+  background: #00e5ff;
+  box-shadow: 0 0 12px #00e5ff;
+}
+
+/* Barra de filtro de fecha */
+.filtro-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, #131e2c, #0c1420);
+  border: 1px solid #263b4e;
+  border-radius: 8px;
+}
+
+.filtro-barra label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #b9f5ff;
+}
+
+.filtro-barra input[type="date"] {
+  padding: 9px 14px;
+  background: #080d16;
+  color: #e8f7ff;
+  border: 1px solid #00cfe8;
+  border-radius: 5px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  outline: none;
+  color-scheme: dark;
+}
+
+/* Tarjetas KPI */
+.tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.tarjeta {
+  padding: 24px 26px;
+  background: linear-gradient(135deg, #131e2c, #0c1420);
+  border: 1px solid #263b4e;
+  border-left: 4px solid #00e5ff;
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tarjeta:nth-child(2) {
+  border-left-color: #a78bfa;
+}
+
+.tarjeta:nth-child(3) {
+  border-left-color: #34d399;
+}
+
+.tarjeta .etiqueta {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #8fa6bc;
+  font-weight: 600;
+}
+
+.tarjeta .valor {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #e8f7ff;
+}
+
+/* Grid de paneles (Tabla + Barras CSS) */
+.paneles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 24px;
+  margin-bottom: 36px;
+}
+
+.panel {
+  padding: 24px 28px;
+  background: linear-gradient(135deg, #131e2c, #0c1420);
+  border: 1px solid #263b4e;
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+}
+
+.panel h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #b9f5ff;
+  margin: 0 0 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #263b4e;
+}
+
+/* Tabla Top 5 */
+.tabla-top {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1.1rem;
+}
+
+.tabla-top th,
+.tabla-top td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid rgba(38, 59, 78, 0.65);
+}
+
+.tabla-top th {
+  color: #00e5ff;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+}
+
+.tabla-top tbody tr:hover {
+  background: rgba(0, 229, 255, 0.05);
+}
+
+/* Barras por estado con CSS */
+.estados-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.fila-estado {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.estado-cabecera {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.estado-nombre {
+  color: #e8f7ff;
+}
+
+.estado-cifra {
+  color: #00e5ff;
+}
+
+.pista {
+  width: 100%;
+  height: 16px;
+  background: #080d16;
+  border: 1px solid #263b4e;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.barra {
+  height: 100%;
+  background: linear-gradient(90deg, #00cfe8, #38bdf8);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.45);
+}
+
+.barra.estado-entregado {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.barra.estado-listo {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+.barra.estado-enpreparacion {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.barra.estado-pendiente {
+  background: linear-gradient(90deg, #a855f7, #c084fc);
+}
+
+.vacio {
+  text-align: center !important;
+  color: #7e91a5;
+  padding: 20px 0 !important;
+  font-style: italic;
+}
+
+.alerta-error {
+  padding: 14px 20px;
+  margin-bottom: 24px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  color: #fca5a5;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Botones */
+button {
+  padding: 10px 24px;
+  background: transparent;
+  border: 1px solid #00d9f5;
+  border-radius: 4px;
+  color: #b9f5ff;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+button:hover {
+  background: #00d9f5;
+  color: #080d16;
+  box-shadow: 0 0 12px rgba(0, 217, 245, 0.5);
+}
+
+.btn-secundario {
+  border-color: #a78bfa;
+  color: #ddd6fe;
+}
+
+.btn-secundario:hover {
+  background: #a78bfa;
+  color: #080d16;
+  box-shadow: 0 0 12px rgba(167, 139, 250, 0.5);
+}
+
+.acciones-pie {
+  display: flex;
+  justify-content: center;
+}

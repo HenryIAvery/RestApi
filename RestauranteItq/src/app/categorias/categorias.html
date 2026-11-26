@@ -1,0 +1,14 @@
+<h1>Categorías</h1>
+
+<section class="categorias-lista">
+  @for (c of categorias(); track c.id) {
+    <button type="button" class="btn-categoria" [routerLink]="['/carta', c.id]">
+      {{ c.nombre }}
+    </button>
+  } @empty {
+    <p>Cargando categorías…</p>
+  }
+</section>
+
+<button type="button" routerLink="/carta">Ver toda la carta</button>
+<button type="button" routerLink="/">Inicio</button>

@@ -1,0 +1,178 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+:host {
+    display: block;
+    min-height: 100vh;
+    padding: 55px 8%;
+    box-sizing: border-box;
+    background: #080d16;
+    color: #dce8f2;
+    font-family: 'Rajdhani', sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Fondo cyberpunk */
+:host::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+        linear-gradient(rgba(0, 225, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 225, 255, 0.035) 1px, transparent 1px),
+        radial-gradient(ellipse at 50% 0%, #142b42 0%, transparent 65%);
+    background-size: 40px 40px, 40px 40px, auto;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Título */
+h1 {
+    position: relative;
+    z-index: 1;
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    text-align: center;
+    color: #e8f7ff;
+    margin-bottom: 55px;
+    text-shadow:
+        0 0 10px rgba(0, 225, 255, 0.45),
+        0 0 30px rgba(0, 225, 255, 0.15);
+}
+
+h1::after {
+    content: "";
+    display: block;
+    width: 100px;
+    height: 3px;
+    margin: 20px auto 0;
+    background: #00e5ff;
+    box-shadow: 0 0 12px #00e5ff;
+}
+
+/* Tarjetas */
+.card {
+    position: relative;
+    z-index: 1;
+    max-width: 650px;
+    margin: 18px auto;
+    padding: 24px 30px;
+    background: linear-gradient(135deg, #131e2c, #0c1420);
+    border: 1px solid #263b4e;
+    border-left: 4px solid #00cfe8;
+    border-radius: 5px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+/* Brillo decorativo */
+.card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 90px;
+    height: 90px;
+    background: radial-gradient(circle, rgba(0, 225, 255, 0.10), transparent 70%);
+    pointer-events: none;
+}
+
+.card:hover {
+    transform: translateY(-5px) scale(1.01);
+    border-color: #00d9f5;
+    border-left-color: #a78bfa;
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.5),
+        0 0 18px rgba(0, 217, 245, 0.12);
+}
+
+/* Nombre del producto */
+.card h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #b9f5ff;
+    margin: 0 0 15px;
+}
+
+/* Precio */
+.card p {
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #aab9c9;
+    margin: 0;
+}
+
+.card p::first-letter {
+    color: #00e5ff;
+}
+
+/* Mensaje sin productos */
+p:not(.card p) {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: #7e91a5;
+    font-size: 1.2rem;
+}
+
+/* Botón de inicio */
+button {
+    display: block;
+    position: relative;
+    z-index: 1;
+    margin: 45px auto 0;
+    padding: 13px 38px;
+    background: transparent;
+    border: 1px solid #00d9f5;
+    border-radius: 3px;
+    color: #b9f5ff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: #00d9f5;
+    color: #080d16;
+    box-shadow:
+        0 0 12px rgba(0, 217, 245, 0.5),
+        0 0 30px rgba(0, 217, 245, 0.2);
+    transform: translateY(-3px);
+}
+
+button:active {
+    transform: scale(0.96);
+}
+
+/* Adaptación a móviles */
+@media (max-width: 600px) {
+    :host {
+        padding: 35px 5%;
+    }
+
+    h1 {
+        letter-spacing: 2px;
+        margin-bottom: 35px;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .card h2 {
+        font-size: 1rem;
+    }
+}

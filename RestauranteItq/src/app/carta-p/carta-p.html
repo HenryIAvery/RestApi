@@ -1,0 +1,27 @@
+<h1>Carta de platillos</h1>
+<section class="menu">
+
+  @for (p of platos(); track p.id) {
+
+    <article class="card">
+
+      <h2>{{ p.nombre }}</h2>
+
+      <p>{{ p.descripcion }}</p>
+
+      <p><b>{{ p.precio | currency }}</b></p>
+
+      <p>Categoría: {{ p.categoria }}</p>  
+
+    </article>
+
+  } @empty {
+
+    <p>Cargando el menú o no hay platillos en esta categoría…</p>
+
+  }
+
+</section>
+
+<button type="button" routerLink="/categorias">Ver Categorías</button>
+<button type="button" routerLink="/">Inicio</button>
